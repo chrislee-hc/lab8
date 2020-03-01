@@ -6,7 +6,7 @@
 
 (* Objective:
 
-This lab practices concepts of functors. 
+This lab practices concepts of functors.
  *)
 
 (*======================================================================
@@ -103,36 +103,38 @@ module MakeStack (Element: SERIALIZE) : (STACK with type element = Element.t) =
     let empty : stack = []
 
     let push (el : element) (s : stack) : stack =
-      failwith "push not implemented"
+      el :: s
 
     let pop_helper (s : stack) : (element * stack) =
-      failwith "pop_helper not implemented"
+      match s with
+      | [] -> raise Empty
+      | hd :: tl -> hd, tl
 
     let top (s : stack) : element =
-      failwith "top not implemented"
+      fst (pop_helper s)
 
     let pop (s : stack) : stack =
-      failwith "pop not implemented"
+      snd (pop_helper s)
 
-    let map (f : element -> element) (s : stack) : stack =
-      failwith "map not implemented"
+    let map = List.map
 
-    let filter (f : element -> bool) (s : stack) : stack =
-      failwith "filter not implemented"
+    let filter = List.filter
 
-    let fold_left (f : 'a -> element -> 'a) (init : 'a) (s : stack) : 'a =
-      failwith "fold_left not implemented"
+    let fold_left = List.fold_left
 
     let serialize (s : stack) : string =
-      failwith "serialize not implemented"
-  end ;;
+      fold_left (fun x y -> Element.serialize y ^ ":" ^ x) (Element.serialize (top s)) (pop s)
+end ;;
 
 (*......................................................................
 Exercise 1B: Now, make a module `IntStack` by applying the functor
 that you just defined to an appropriate module for serializing integers.
 ......................................................................*)
 
-module IntStack = struct end ;;
+module IntStack = MakeStack (struct
+    type t = int
+    let serialize = string_of_int
+  end);;
 
 (*......................................................................
 Exercise 1C: Make a module `IntStringStack` that creates a stack whose
@@ -144,12 +146,13 @@ values as strings of the form:
 where N is the int, and S is the string. For instance, a stack with
 two elements might be serialized as the string
 
-    "(1,'pushed first'):(2,'pushed second')"
+    "(1, 'pushed first'):(2, 'pushed second')"     .
 
 For this oversimplified serialization function, you may assume that
 the string will be made up of alphanumeric characters only.
 ......................................................................*)
 
-module IntStringStack = struct end ;;
-
-
+module IntStringStack = MakeStack (struct
+  type t = int * string
+  let serialize tuple = "(" ^ string_of_int (fst tuple) ^ ", '" ^ snd tuple ^ "')"
+end) ;;
