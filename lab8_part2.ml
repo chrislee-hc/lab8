@@ -155,5 +155,5 @@ the string will be made up of alphanumeric characters only.
 
 module IntStringStack = MakeStack (struct
   type t = int * string
-  let serialize tuple = "(" ^ string_of_int (fst tuple) ^ ", '" ^ snd tuple ^ "')"
+  let serialize tuple = "(" ^ string_of_int (fst tuple) ^ ", " ^ snd tuple ^ ")"
 end) ;;
